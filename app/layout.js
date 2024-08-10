@@ -19,7 +19,9 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>
-          <Navbar />
+          <div className=" py-8 ">
+            <Navbar />
+          </div>
           {children}
           <Footer />
         </body>

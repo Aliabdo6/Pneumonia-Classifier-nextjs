@@ -12,15 +12,25 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 const NavItem = ({ href, children }) => {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
   return (
     <motion.li
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
     >
       <Link href={href}>
-        <p className="text-white hover:text-yellow-300 transition-colors duration-300">
+        <p
+          className={`hover:text-yellow-300 transition-colors duration-300 ${
+            isActive
+              ? "text-yellow-300"
+              : "text-white"
+          }`}
+        >
           {children}
         </p>
       </Link>
@@ -54,14 +64,15 @@ const Navbar = () => {
       transition={{ duration: 0.5 }}
       className={`w-full fixed top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-blue-600 shadow-lg"
-          : "bg-transparent"
+          ? "bg-blue-700 shadow-lg"
+          : "bg-blue-600"
       }`}
     >
       <div className="container mx-auto px-4 h-20">
         <div className="flex justify-between items-center h-full">
           <Logo />
           <ul className="hidden md:flex gap-x-8 text-lg font-semibold">
+            <NavItem href="/">Home</NavItem>
             <NavItem href="/about">
               About Us
             </NavItem>
@@ -70,6 +81,9 @@ const Navbar = () => {
             </NavItem>
             <NavItem href="/contacts">
               Contacts
+            </NavItem>
+            <NavItem href="/predictions">
+              Predictions
             </NavItem>
           </ul>
           <div className="flex items-center space-x-4">
@@ -102,56 +116,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-// "use client";
-// import React from "react";
-// import Link from "next/link";
-// import Logo from "./Logo";
-// import {
-//   SignedIn,
-//   SignedOut,
-//   SignInButton,
-//   UserButton,
-// } from "@clerk/nextjs";
-
-// const Navbar = () => {
-//   return (
-//     <>
-//       <div className="w-full bg-blue-500 sticky top-0 z-10">
-//         <div className="container mx-auto px-4 h-20">
-//           <div className="flex justify-between items-center h-full">
-//             <Logo /> {/* Display your logo */}
-//             <ul className="hidden md:flex gap-x-6 text-white">
-//               <li>
-//                 <Link href="/about">
-//                   <p>About Us</p>
-//                 </Link>
-//               </li>
-//               <li>
-//                 <Link href="/model">
-//                   <p>Services</p>
-//                 </Link>
-//               </li>
-//               <li>
-//                 <Link href="/contacts">
-//                   <p>Contacts</p>
-//                 </Link>
-//               </li>
-//             </ul>
-//             {/* Conditional rendering of SignInButton or UserProfile */}
-//             <SignedIn>
-//               {/* Mount the UserButton component */}
-//               <UserButton />
-//             </SignedIn>
-//             <SignedOut>
-//               {/* Signed out users get sign in button */}
-//               <SignInButton />
-//             </SignedOut>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Navbar;

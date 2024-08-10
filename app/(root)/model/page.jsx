@@ -6,11 +6,16 @@ import React, {
 } from "react";
 import * as tf from "@tensorflow/tfjs";
 import { useClerk } from "@clerk/clerk-react";
+import { motion } from "framer-motion";
 
 const PneumoniaClassifier = () => {
   const [model, setModel] = useState(null);
   const [status, setStatus] = useState("");
   const [predictionResult, setPredictionResult] =
+    useState(null);
+  const [isLoading, setIsLoading] =
+    useState(false);
+  const [imagePreview, setImagePreview] =
     useState(null);
   const { user } = useClerk();
 
@@ -49,6 +54,7 @@ const PneumoniaClassifier = () => {
       return;
     }
 
+    setIsLoading(true);
     const reader = new FileReader();
     reader.onloadstart = function () {
       setStatus("Image loading...");
@@ -61,6 +67,7 @@ const PneumoniaClassifier = () => {
         makePrediction(tensor);
       };
       img.src = e.target.result;
+      setImagePreview(e.target.result);
     };
 
     reader.readAsDataURL(file);
@@ -106,22 +113,21 @@ const PneumoniaClassifier = () => {
       setPredictionResult(formattedPrediction);
       setStatus("Prediction complete");
 
-      // Save prediction result
       savePredictionResult(formattedPrediction);
     } catch (error) {
       setStatus(
         `Error making prediction: ${error.message}`
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const formatPrediction = (prediction) => {
     const [normal, pneumonia] = prediction;
-    if (normal > pneumonia) {
-      return "NORMAL";
-    } else {
-      return "PNEUMONIA";
-    }
+    return normal > pneumonia
+      ? "NORMAL"
+      : "PNEUMONIA";
   };
 
   const savePredictionResult = async (
@@ -162,51 +168,134 @@ const PneumoniaClassifier = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="maindiv flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold mb-4">
-          Pneumonia Classifier
-        </h1>
-        <p className="text-lg text-center mb-4">
-          Upload a chest X-ray image using the
-          input field below. Click "Load Model" to
-          load the deep learning model for
-          pneumonia classification. Once the model
-          is loaded, click "Predict" to predict
-          whether the X-ray image shows signs of
-          pneumonia or not.
-        </p>
-        <input
-          type="file"
-          id="imageUpload"
-          accept="image/*"
-          className="mb-4"
-        />
-        <button
-          onClick={predict}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="w-full min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 py-12 px-4 sm:px-6 lg:px-8"
+    >
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+        <motion.div
+          initial={{ y: -50 }}
+          animate={{ y: 0 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+          }}
+          className="p-8"
         >
-          Predict
-        </button>
-        <div id="status" className="mb-4">
-          {status}
-        </div>
-        <div
-          id="predictionResult"
-          className="text-lg"
-        >
-          {predictionResult && (
-            <>
-              <h2>
-                The team will call you to discuss
-                the results.
-              </h2>
-              {/* <p>{predictionResult}</p> */}
-            </>
+          <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">
+            Pneumonia Classifier
+          </h1>
+          <p className="text-lg text-center mb-8 text-gray-600">
+            Upload a chest X-ray image to predict
+            whether it shows signs of pneumonia.
+          </p>
+
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="mb-8"
+          >
+            <input
+              type="file"
+              id="imageUpload"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                setStatus("Image selected");
+                setImagePreview(
+                  URL.createObjectURL(
+                    e.target.files[0]
+                  )
+                );
+              }}
+            />
+            <label
+              htmlFor="imageUpload"
+              className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-full block text-center transition duration-300 ease-in-out"
+            >
+              Choose X-ray Image
+            </label>
+          </motion.div>
+
+          {imagePreview && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="mb-8"
+            >
+              <img
+                src={imagePreview}
+                alt="X-ray Preview"
+                className="max-w-full h-auto mx-auto rounded-lg shadow-md"
+                style={{ maxHeight: "300px" }}
+              />
+            </motion.div>
           )}
-        </div>
+
+          <motion.button
+            onClick={predict}
+            disabled={isLoading || !imagePreview}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full mb-6 transition duration-300 ease-in-out ${
+              isLoading || !imagePreview
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            {isLoading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                className="inline-block w-6 h-6 border-t-2 border-white rounded-full"
+              />
+            ) : (
+              "Predict"
+            )}
+          </motion.button>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: status ? 1 : 0 }}
+            className="text-center text-lg font-semibold mb-6 text-gray-700"
+          >
+            {status}
+          </motion.div>
+
+          {predictionResult && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center"
+            >
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                Results
+              </h2>
+              <p className="text-xl font-semibold text-gray-700">
+                Prediction:{" "}
+                <span
+                  className={
+                    predictionResult === "NORMAL"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }
+                >
+                  {predictionResult}
+                </span>
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

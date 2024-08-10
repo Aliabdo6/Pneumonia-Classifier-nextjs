@@ -3,9 +3,9 @@ import PredictionList from "../../../components/PredictionList";
 
 const PredictionsPage = () => {
   return (
-    <div className="w-full">
-      <div className="maindiv flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-10">
           Prediction Results
         </h1>
         <PredictionList />

@@ -1,23 +1,21 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import dbConnect from "../../../lib/mongodb";
+import Prediction from "../../../models/Prediction";
 
 export async function GET() {
-  const dataPath = path.join(
-    process.cwd(),
-    "data.json"
-  );
+  await dbConnect();
 
   try {
-    const jsonData = fs.readFileSync(
-      dataPath,
-      "utf-8"
-    );
-    const predictions = JSON.parse(jsonData);
+    const predictions = await Prediction.find(
+      {}
+    ).sort({ timestamp: -1 });
     return NextResponse.json(predictions);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to read data" },
+      {
+        error:
+          "Failed to fetch prediction results",
+      },
       { status: 500 }
     );
   }

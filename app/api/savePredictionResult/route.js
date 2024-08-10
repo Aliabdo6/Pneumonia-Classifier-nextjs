@@ -1,11 +1,11 @@
-import fs from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
+import dbConnect from "../../../lib/mongodb";
+import Prediction from "../../../models/Prediction";
 
 export async function POST(request) {
-  const body = await request.json();
+  await dbConnect();
 
-  // Assuming body contains prediction, timestamp, user, userName
+  const body = await request.json();
   const {
     prediction,
     timestamp,
@@ -13,39 +13,26 @@ export async function POST(request) {
     userName,
   } = body;
 
-  // Define the file path
-  const filePath = path.join(
-    process.cwd(),
-    "data.json"
-  );
+  try {
+    const newPrediction = new Prediction({
+      prediction,
+      timestamp,
+      user,
+      userName,
+    });
 
-  // Read existing data
-  let data = [];
-  if (fs.existsSync(filePath)) {
-    const fileContent = fs.readFileSync(
-      filePath,
-      "utf8"
+    await newPrediction.save();
+
+    return NextResponse.json({
+      message:
+        "Prediction result saved successfully",
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Failed to save prediction result",
+      },
+      { status: 500 }
     );
-    data = JSON.parse(fileContent);
   }
-
-  // Append new result including user information
-  data.push({
-    prediction,
-    timestamp,
-    user,
-    userName,
-  });
-
-  // Write updated data to file
-  fs.writeFileSync(
-    filePath,
-    JSON.stringify(data, null, 2)
-  );
-
-  // Return success response
-  return NextResponse.json({
-    message:
-      "Prediction result saved successfully",
-  });
 }
