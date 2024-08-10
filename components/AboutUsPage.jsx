@@ -89,7 +89,7 @@ const AboutUsPage = () => {
             Andrew Wilson
           </h2>
           <p className="text-gray-600 mb-4">
-            Role: Researcher
+            Researcher
           </p>
         </div>
       </div>
