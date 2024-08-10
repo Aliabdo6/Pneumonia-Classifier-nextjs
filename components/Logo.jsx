@@ -14,10 +14,10 @@ const Logo = () => {
         </div>
         <div className="text-white font-bold text-xl tracking-wider">
           <span className="text-blue-400">
-            Ali
+            Pneumonia
           </span>
           <span className="text-purple-400">
-            Abdo
+            Detection
           </span>
         </div>
       </div>
