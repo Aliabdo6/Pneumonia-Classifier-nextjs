@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "./Logo";
 
 const Footer = () => {
   return (
@@ -7,12 +8,12 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <h3 className="text-lg font-semibold mb-2">
-              Company Name
+              <Logo />
             </h3>
-            <p>
+            {/* <p>
               A brief description of your company
               or project.
-            </p>
+            </p> */}
           </div>
           <ul className="flex space-x-4">
             <li>
@@ -42,10 +43,10 @@ const Footer = () => {
           </ul>
         </div>
         <div className="mt-8 text-center md:text-left">
-          <p>
+          {/* <p>
             &copy; {new Date().getFullYear()}{" "}
-            Company Name. All rights reserved.
-          </p>
+            <Logo /> All rights reserved.
+          </p> */}
         </div>
       </div>
     </footer>
